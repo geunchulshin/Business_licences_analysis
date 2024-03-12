@@ -42,6 +42,7 @@ In order to find the answer to this research question, an effort is being made t
 For the analysis, the null hypothesis is defined as business category and endorsement numbers do not exert a significant influence on license duration. In other words, the analysis assumes that variations in license duration cannot be attributed to differences in business categories or endorsement numbers. Testing this hypothesis is crucial for determining whether observed differences in license durations are statistically meaningful or simply due to random chance. The result shows that there are a few categories which have a significant impact 
 on the licence term while the other being having almost zero impact.
 
+Our primary estimand is the difference in average license duration across different business categories and the average change in license duration associated with each additional endorsement.
 
 The purpose of this paper is to find which factors or categories 
 impact the licence durability. The remainder of this paper is 
