@@ -1,24 +1,27 @@
-# Starter folder
+# An analysis of business licences issued by the Toronto Municipal Licensing and Standards.
 
-## Overview
+## Overview of Paper
 
-This repo provides students with a foundation for their own projects associated with *Telling Stories with Data*. You do not need every aspect for every paper and you should delete aspects that you do not need.
-
-To use this folder, click the green "Code" button", then "Download ZIP". Move the downloaded folder to where you want to work on your own computer, and then modify it to suit.
-
+This paper investigates the impact of various factors on the duration of business and trade licences issued by Municipal Licensing & Standards (ML&S) in Toronto. 
 
 ## File Structure
 
-The repo is structured as:
+The repository is structured as:
 
--   `data/raw_data` contains the raw data as obtained from X.
--   `data/analysis_data` contains the cleaned dataset that was constructed.
--   `model` contains fitted models. 
--   `other` contains relevant literature, details about LLM chat interactions, and sketches.
--   `paper` contains the files used to generate the paper, including the Quarto document and reference bibliography file, as well as the PDF of the paper. 
--   `scripts` contains the R scripts used to simulate, download and clean data.
+o `data` Includes the data sources utilized in the paper: raw data and analysis data.
 
+o `paper` Includes the Quarto document, reference bibliography file and the rendered
+PDF.
 
-## Statement on LLM usage
+o `scripts` Includes the R scripts utilized for data simulation, downloading, cleaning, testing and modelling.
 
-Aspects of the code were written with the help of the auto-complete tool, Codriver. The abstract and introduction were written with the help of ChatHorse and the entire chat history is available in inputs/llms/usage.txt.
+## How to Run
+0. For simulation and testing, run `scripts/00-simulate_data.R`
+1. Run `scripts/01-download_data.R` to download raw data
+2. Run `scripts/02-data_cleaning.R` to clean data and generate cleaned data
+3. Run `scripts/03-test_data.R` to test data
+4. Run `scripts/04-model.R` to model data
+3. Run `paper/Business_licences_analysis.qmd` to create the PDF version of the paper
+
+## Statement on LLM usage:
+There was no LLM usage to write this paper.
