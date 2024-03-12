@@ -1,0 +1,275 @@
+---
+title: "Impact of business categories and endorsement on their license durability after 2000"
+subtitle: "An analysis of business licences issued by the Toronto Municipal Licensing and Standards."
+author: 
+  - First author
+  - Another author
+thanks: "Code and data are available at: LINK."
+date: today
+toc: true
+toc-depth: 2
+date-format: long
+abstract: "Municipal Licensing & Standards (ML&S) issues licences to various type of businesses and trades in Toronto city. This licence dataset is used for finding the impact of various factors influencing licence durations. The data set is analysed and compared for the period 2000 and beyond. Evidently, The linear model suggests that the category `HOLISTIC CENTRE` has the most significant negative impact on issue duration, while the number of endorsements does not significantly affect issue duration. The model explains only a small proportion of the variability in issue duration, indicating that other factors beyond the predictors included in the model may influence issue duration.  @citeR is used in this report to clean, visualize and model fitting. In future this report can be helpful to analyze and consider other factors impacting licencing."
+format: pdf
+number-sections: true
+bibliography: references.bib
+---
+
+```{r}
+#| include: false
+#| warning: false
+#| message: false
+library(tidyverse)
+library(knitr)
+library(kableExtra)
+library(ggplot2)
+library(bayesplot)
+library(rstanarm)
+```
+
+
+# Introduction
+
+The Municipal Licensing & Standards (ML&S) department grants licenses to a variety of businesses and trades within the city of Toronto @toronto_election_data. To investigate the trends in the distribution of licences, its duration and permits across different categories, a thorough investigation was carried out for all the licenses given since 2000. This choice allows for a comprehensive exploration of licensing and permitting distribution patterns, considering the potential influence of electoral on regulatory activities and administrative decision-making within the municipal landscape in last 20 years or more. The Court Services Division of the City of Toronto provides administrative support to the Tribunal. Unless otherwise specified, public hearings are held every Thursday. The Tribunal makes rulings free from commercial or political influence @toronto_tribunal. 
+
+In this paper, it is being considered that there are numerous factors, including both legislative and larger social-economic dynamics, 
+that plays a role in licencing choices. Those factors could be related to regulatory 
+compliance, public safety and welfare, applicant qualification, land use and zoning, 
+economic impact, environmental considerations, social and political priorities. Hence, the difference in the pattern could be because of those influential factors, that leads to 
+change in the policy decisions. 
+
+There are some categories for which most applications are received for permits and licenses. Building permits are for construction, film permits for making movies, lottery licenses for charitable events, marriage licenses for weddings, and taxi licenses for driving taxis @toronto_open_data. These permits help ensure things are done safely and responsibly, making sure activities like building, filming, fundraising, getting married, or driving taxis follow the rules that keep everyone safe and organized in the community. The research questions arises that "Are licence duration differ as per category and number of endorsement the company currently holds?". 
+In order to find the answer to this research question, an effort is being made to find the impact of business categories and endorsement on the licence duration.
+
+For the analysis, the null hypothesis is defined as, business category and endorsement numbers do not exert a significant influence on license duration. In other words, the analysis assumes that variations in license duration cannot be attributed to differences in business categories or endorsement numbers. Testing this hypothesis is crucial for determining whether observed differences in license durations are statistically meaningful or simply due to random chance. The result shows that there are a few categories which have significant impact 
+on the licence term while other being having almost zero impact.
+
+
+The purpose of this paper is to find which factors or categories 
+impacts the licence durability. The remainder of this paper is 
+structured as follows. @sec-data elaborate about the data-set used for 
+the analysis. @sec-model section explains about the linear model fitted on the 
+data-set. @sec-result shows the result of the analysis. 
+@sec-discussion explains and discusses the results in details. @sec-conclusion
+concludes the analysis i.e. the findings of this paper.
+
+
+# Data {#sec-data}
+
+## Data Description
+
+The data set used in this analysis is obtained from the City of Toronto’s Open-Data Toronto Library @citeOpenData. The data set is entitle with the name "Municipal Licensing and Standards - Business Licences and Permits" @toronto_open_data. Along with that the following packages are also used, ggplot2 for plotting @citeGGPlot, tidyverse for data frame manipulation @citeTidyverse, knitr for pdf rendering @citeKnitr, @rstanarm package is used to fit the model, 
+@bayesplot is used to plot the diagnostics
+and kableExtra for styling tables @citekableExtra. 
+
+## Methodology
+The raw data set contains 32000 observations each having 18 features. However, for the analysis I only require a few of the features. The final data-set contains 4 variables i.e. Category, number of endorsements, year and licence duration. I also performed feature engineering to generate a couple of features. These will be discussed further in detail. A sample of cleaned data set is shown here @tbl-sampledata.
+
+In the data cleaning process, several steps were undertaken to refine and prepare the dataset for analysis. Initially, a set of specific columns deemed unnecessary for the analysis, such as "_id," "Licence No.," and others related to contact details and record updates, were identified and removed. Additionally, to enhance clarity and ease of analysis, columns containing text-based information, such as "Conditions" and "Endorsements," underwent processing. A custom function was applied to calculate the number of words in each entry of the "Endorsements" column. Furthermore, date-related columns such as Issue_date and Cancel_date were modified to extract the year and month of issuance and cancellation, and a new column, "Issue_duration," was created to represent the duration between issuance and cancellation in months. Finally, several columns containing redundant or sensitive information were dropped to streamline the dataset for subsequent analysis. These meticulous data cleaning steps ensure a more focused, structured, and standardized dataset, laying the foundation for the subsequent stages.
+
+## Visualization
+
+The table shows category wise percentage of
+licenses issued during this period. 
+The overall distribution is shown here @tbl-catall. 
+Figure @fig-data shows the box-plot of licence duration category wise.
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+#| label: tbl-sampledata
+#| tbl-cap: "Sample of cleaned Municipal Licensing & Standards data set (Issue Duration in Months)"
+#| layout-ncol: 1
+
+cleaned_data <- read_csv("../data/analysis_data/analysis_data.csv")
+cleaned_data <- as.data.frame(cleaned_data)
+res <- head(cleaned_data)
+colnames(res) <- c('Category', 'Num Endorsements', 'Issued year', 'Issue duration')
+kable(res)
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| label: tbl-catall
+#| tbl-cap: "Licenses issued during all years"
+#| layout-ncol: 1
+
+cleaned_data <- read_csv("../data/analysis_data/analysis_data.csv")
+df1 <- as.data.frame(prop.table(table(cleaned_data$Category)))
+colnames(df1) <- c("Category", "Percentage(%)")
+df1$`Percentage(%)` <- df1$`Percentage(%)`*100
+result <- kable(df1) |> kable_classic(full_width = FALSE)
+result
+```
+
+\newpage
+
+# Model {#sec-model}
+
+By fitting a linear model to the license dataset, we can identify which factors, such as business category and number of endorsements, have the most significant impact on license durations, as by understanding the factors that influence license durations for businesses and trades in Toronto is crucial for efficient municipal operations and supporting local businesses. Linear models offer a straightforward approach to understanding relationships between variables, providing interpretable coefficients that quantify the impact of predictors on the response variable. Additionally, they require fewer assumptions compared to more complex models, making them suitable for a wide range of data-sets and facilitating easier interpretation of results. The linear model that we fitted is defined as below:
+
+$Issue\_duration=\beta_0 + \beta_1*Category + \beta_2*Num_Endorsements + \epsilon$
+
+where:
+
+- Issue_duration is the response variable.
+- $\beta_0$ is intercept term.
+- $\beta_1$ and $\beta_2$ are the coefficients associated with the predictors (Category and Num_Endorsements).
+- $\epsilon$ is the error term.
+
+As we also fit the log linear model, when fitting a log-linear model, the equation structure changes to accommodate the logarithmic transformation of the response variable or predictor variables as below:
+
+$log(Issue\_duration)=\beta_0 + \beta_1*Category + \beta_2*log(Num_Endorsements) + \epsilon$
+
+where:
+
+- $log(Issue\_duration)$ is the natural logarithm of the response variable.
+- $log(Num\_Endorsements)$ is the natural logarithm of the predictor variable.
+- $\beta_0$ is intercept term.
+- $\beta_1$ and $\beta_2$ are the coefficients associated with the predictors (Category and Num_Endorsements).
+- $\epsilon$ is the error term.
+
+
+# Results {#sec-result}
+
+## Exploratory Analysis
+
+Comparing the data set, it appears that certain categories, such as "DRIVE-SELF RENTAL OWNER" and "PRIVATE TRANSPORTATION COMPANY," consistently have lower endorsements frequencies, reflecting potential operational trends or regulatory considerations. The variations in endorsements numbers between the two time periods underscore the dynamic nature of endorsements activities across different business categories, suggesting changes 
+in regulatory focus or industry dynamics over time.
+
+## Linear model
+
+The analysis of license duration for businesses and trades in Toronto reveals interesting insights as shown in @fig-result1 and @fig-model2. The linear model suggests that certain business categories, such as 'HOLISTIC CENTRE', have a significant impact on license duration, with shorter durations observed in this category compared to others. However, the number of endorsements does not seem to have a significant effect on license duration, as indicated by its non-significant coefficient and p-value. Despite these findings, the model only explains a small proportion (approximately 1.3%) of the variability in license duration, suggesting that other factors not included in the model may also influence license durations. The relatively high residual standard error of around 40.26 indicates some level of deviation of observed license durations from the predicted values by the model. While the model is statistically significant overall, with a very low p-value (< 2.2e-16), its limited explanatory power underscores the complexity of factors influencing license durations beyond those captured in the analysis.
+
+## Log-Linear model
+The log-linear model suggests that while certain business categories still exhibit significant impacts on license duration as shown in @fig-model3, the effects are somewhat attenuated compared to the linear model. Notably, businesses categorized as 'HOLISTIC CENTRE' continue to demonstrate a significant negative impact on license duration. However, the logarithmically transformed number of endorsements does not appear to significantly influence license duration, similar to the findings of the linear model. Overall, the model explains only a small proportion (approximately 1.4%) of the variability in license duration, indicating the presence of other unaccounted factors. Despite the relatively high residual standard error of around 0.9323, the model remains statistically significant overall, as evidenced by the very low p-value (< 2.2e-16).
+
+
+```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| label: fig-result1
+#| fig-cap: "Factors impacting licence duration" 
+#| layout-ncol: 1
+first_model <- readRDS("../models/first_model.rds")
+plot(first_model)
+```
+
+```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| label: fig-result2
+#| fig-cap: "Prior vs Posterior Probability" 
+#| layout-ncol: 1
+first_model <- readRDS("../models/first_model.rds")
+pp_check(first_model, xlab="X", ylab="Density", 
+     main="Factors impacting licence duration")
+```
+
+# Discussion {#sec-discussion}
+
+## Linear and Log-linear model summary
+Analyzing licenses and permits in Toronto shows interesting trends in how businesses operate. Some types of businesses, like those dealing with temporary signs, taxi brokering, and private transportation, seem to have longer-lasting licenses. 
+
+The analysis of license durations using both linear and log-linear models provides valuable insights, but neither model alone is strong enough to definitively prove or disprove the null hypothesis. While the models offer statistical significance for certain predictors like business categories, they only explain a small proportion of the variability in license duration, suggesting the presence of other unaccounted factors.
+
+Comparing the two models, the log-linear model incorporates logarithmic transformations of the response variable and predictor, offering a different perspective on the relationships. However, it does not necessarily perform better than the simple linear model, as both models have similar limitations in explaining the variability in license durations.
+
+Additionally, the results from the stan_glm model provide insights into the factors influencing license durations in a straightforward manner. The estimated coefficients indicate the average effect of each predictor on license duration. For instance, a positive coefficient suggests that an increase in the predictor is associated with a longer license duration, while a negative coefficient suggests the opposite.
+
+In this analysis, the intercept represents the average license duration when all predictors are at their reference levels. The coefficients for different business categories indicate how each category affects license duration compared to the reference category. For example, the 'HOLISTIC CENTRE' category has a negative coefficient, indicating that businesses in this category tend to have shorter license durations compared to the reference category.
+
+Similarly, the coefficient for 'Num_Endorsements' indicates the average change in license duration for each additional endorsement. The standard deviation (sd) provides information about the variability in the estimated coefficients.
+
+Additionally, the fit diagnostics provide information about the model's performance and convergence. The mean_PPD represents the average posterior predictive distribution of the outcome variable, giving an indication of how well the model fits the data. The MCMC diagnostics, including Monte Carlo standard error (mcse), effective sample size (n_eff), and potential scale reduction factor (Rhat), assess the reliability of the parameter estimates and the convergence of the Markov chain Monte Carlo (MCMC) sampling process as shown in @fig-result2.
+
+Overall, these results help us understand the factors influencing license durations and assess the model's performance in capturing these relationships.
+
+The insights from models help both the government and businesses make informed decisions and understand the factors shaping licensing and rules in Toronto. 
+
+## Weaknesses
+Linear models have drawbacks. They may not capture all relevant factors influencing license durations, leading to residual variability in predictions. Additionally, the models rely on certain assumptions, such as linearity and homoscedasticity, which may not always hold true in real-world scenarios.
+
+These observations point towards dynamic changes in licensing dynamics, possibly influenced by evolving regulatory frameworks or industry trends. This comparison underscores the importance of adapting licensing policies to the evolving landscape of businesses, ensuring that regulatory frameworks remain responsive to the needs and dynamics of various industry sectors. Hence, more variables and non-linear model can be used to get the strong influencing factors.
+
+## Future Directions
+Moving forward, future research could explore additional predictors or alternative modeling approaches to better understand and predict license durations. Incorporating more comprehensive datasets and considering nonlinear relationships may improve model performance. Additionally, qualitative research methods could provide deeper insights into the complex factors influencing license durations, complementing the quantitative analysis provided by the models.
+
+
+# Conclusion {#sec-conclusion}
+
+In summary, the analysis of licensing data in Toronto unveils dynamic trends in both the duration and distribution of licenses across diverse business categories. In examining license durations, two models were used: linear regression and log-linear regression. The linear regression model showed how business categories and endorsement numbers affect license duration, as it estimates and fit diagnostics, offering insights into parameter reliability and model convergence. These models collectively shed light on factors influencing license duration and provided a comprehensive understanding of their relationships. To mitigate the effect of non-linearity, the log-linear model analyzed the same variables but on a logarithmic scale. Both models assumes linearity of the data, however, from the results it shows data have some non-linearity, hence in future more complex models, which can handle non-linearity may be more useful. 
+
+From the results, we can infer that license duration is influenced by both business category and endorsement numbers, albeit to varying degrees. The coefficients in the models provide insight into the strength and direction of these effects. For instance, categories like "HOLISTIC CENTRE" have a significant negative impact on license duration, while others may have weaker or even negligible effects. Similarly, the impact of endorsement numbers appears to be minimal, with coefficients close to zero. However, precise quantification of these effects requires careful interpretation of the coefficients and consideration of the model's overall explanatory power.
+
+\newpage
+
+# Appendix {#appendix}
+
+## Data Visualisations
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| label: fig-data
+#| fig-cap: "Licenses duration category wise"
+#| layout-ncol: 1
+analysis_data <- read_csv("../data/analysis_data/analysis_data.csv")
+g <- ggplot(analysis_data, aes(x = Category, 
+                              y = Issue_duration, fill=Num_Endorsements)) +
+  geom_boxplot() +
+  labs(title = "Licence Duration given to each 
+       Category, group wise comparison", 
+       x = "Category", y = "Average Licence Duration (months)") +
+  theme_minimal() + coord_flip()
+print(g)
+```
+
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| label: fig-basemodel
+#| fig-cap: "Predicted vs Residual plot Linear model"
+#| layout-ncol: 1
+first_model <- readRDS("../models/first_model.rds")
+residuals <- residuals(first_model)
+predicted <- predict(first_model)
+plot(predicted, residuals, xlab = "Predicted", ylab = "Residuals")
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| label: fig-model2
+#| fig-cap: "Diagnostic plots of linear model"
+#| layout-ncol: 1
+par(mfrow=c(2, 2))
+first_model_lm <- readRDS("../models/first_model_lm.rds")
+plot(first_model_lm, ask = FALSE)
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| label: fig-model3
+#| fig-cap: "Diagnostic plots of log linear model"
+#| layout-ncol: 1
+par(mfrow=c(2, 2))
+second_model <- readRDS("../models/second_model.rds")
+plot(second_model, ask = FALSE)
+```
+
+\newpage
+
+# References
+
+
