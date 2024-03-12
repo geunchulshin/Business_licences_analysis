@@ -1,17 +1,15 @@
 #### Preamble ####
-# Purpose: Downloads and saves the data from [...UPDATE THIS...]
-# Author: Rohan Alexander [...UPDATE THIS...]
-# Date: 11 February 2023 [...UPDATE THIS...]
-# Contact: rohan.alexander@utoronto.ca [...UPDATE THIS...]
-# License: MIT
-# Pre-requisites: [...UPDATE THIS...]
-# Any other information needed? [...UPDATE THIS...]
+# Purpose: Downloads and saves the data from opendatatoronto
+# Author: Geunchul Shin
+# Date: 12 March 2024
+# Contact: joey.shin@mail.utoronto.ca
+# Pre-requisites: --0simulate_data.R
+# Any other information needed? no
 
 
 #### Workspace setup ####
 library(opendatatoronto)
 library(tidyverse)
-# [...UPDATE THIS...]
 
 resources <- list_package_resources("57b2285f-4f80-45fb-ae3e-41a02c3a137f")
 

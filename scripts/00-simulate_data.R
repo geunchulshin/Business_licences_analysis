@@ -1,17 +1,15 @@
 #### Preamble ####
 # Purpose: Simulates the dataset that is used for the analysis.
-# Author: Rohan Alexander [...UPDATE THIS...]
-# Date: 11 February 2023 [...UPDATE THIS...]
-# Contact: rohan.alexander@utoronto.ca [...UPDATE THIS...]
-# License: MIT
+# Author: Geunchul Shin
+# Date: 12 March 2024
+# Contact: joey.shin@mail.utoronto.ca
 # Pre-requisites: None
 # Any other information needed? No
 
 
 #### Workspace setup ####
 library(tidyverse)
-# [...UPDATE THIS...]
-set.seed(123)
+set.seed(1003380888)
 
 #### Simulate data ####
 
