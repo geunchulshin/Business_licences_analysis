@@ -5,6 +5,7 @@ author: "Geunchul Shin"
 thanks: "Code and data are available at: https://github.com/geunchulshin/Business_licences_analysis"
 date: today
 toc: true
+fig-pos: H
 toc-depth: 2
 date-format: long
 abstract: "Municipal Licensing & Standards (ML&S) issues licences to various type of businesses and trades in Toronto city. This licence dataset is used for finding the impact of various factors influencing licence durations. The data set is analysed and compared for the period 2000 and beyond. Evidently, the linear model suggests that the category `HOLISTIC CENTRE` has the most significant negative impact on issue duration, while the number of endorsements does not significantly affect issue duration. The model explains only a small proportion of the variability in issue duration, indicating that other factors beyond the predictors included in the model may influence issue duration.  @citeR is used in this report to clean, visualize and model fitting. In future this report can be helpful to analyze and consider other factors impacting licencing."
@@ -138,10 +139,10 @@ in regulatory focus or industry dynamics over time.
 
 ## Linear model
 
-The analysis of license duration for businesses and trades in Toronto reveals interesting insights as shown in @fig-result1 and @fig-model2. The linear model suggests that certain business categories, such as 'HOLISTIC CENTRE', have a significant impact on license duration, with shorter durations observed in this category compared to others. However, the number of endorsements does not seem to have a significant effect on license duration, as indicated by its non-significant coefficient and p-value. Despite these findings, the model only explains a small proportion (approximately 1.3%) of the variability in license duration, suggesting that other factors not included in the model may also influence license durations. The relatively high residual standard error of around 40.26 indicates some level of deviation of observed license durations from the predicted values by the model. While the model is statistically significant overall, with a very low p-value (< 2.2e-16), its limited explanatory power underscores the complexity of factors influencing license durations beyond those captured in the analysis.
+The analysis of license duration for businesses and trades in Toronto reveals interesting insights as shown in @fig-result1 and plots of linear model (@fig-model2_1, @fig-model2_2, @fig-model2_3, @fig-model2_4). The linear model suggests that certain business categories, such as 'HOLISTIC CENTRE', have a significant impact on license duration, with shorter durations observed in this category compared to others. However, the number of endorsements does not seem to have a significant effect on license duration, as indicated by its non-significant coefficient and p-value. Despite these findings, the model only explains a small proportion (approximately 1.3%) of the variability in license duration, suggesting that other factors not included in the model may also influence license durations. The relatively high residual standard error of around 40.26 indicates some level of deviation of observed license durations from the predicted values by the model. While the model is statistically significant overall, with a very low p-value (< 2.2e-16), its limited explanatory power underscores the complexity of factors influencing license durations beyond those captured in the analysis.
 
 ## Log-Linear model
-The log-linear model suggests that while certain business categories still exhibit significant impacts on license duration as shown in @fig-model3, the effects are somewhat attenuated compared to the linear model. Notably, businesses categorized as 'HOLISTIC CENTRE' continue to demonstrate a significant negative impact on license duration. However, the logarithmically transformed number of endorsements does not appear to significantly influence license duration, similar to the findings of the linear model. Overall, the model explains only a small proportion (approximately 1.4%) of the variability in license duration, indicating the presence of other unaccounted factors. Despite the relatively high residual standard error of around 0.9323, the model remains statistically significant overall, as evidenced by the very low p-value (< 2.2e-16).
+The log-linear model suggests that while certain business categories still exhibit significant impacts on license duration (as shown in @fig-model3_1, @fig-model3_2, @fig-model3_3, @fig-model3_4), the effects are somewhat attenuated compared to the linear model. Notably, businesses categorized as 'HOLISTIC CENTRE' continue to demonstrate a significant negative impact on license duration. However, the logarithmically transformed number of endorsements does not appear to significantly influence license duration, similar to the findings of the linear model. Overall, the model explains only a small proportion (approximately 1.4%) of the variability in license duration, indicating the presence of other unaccounted factors. Despite the relatively high residual standard error of around 0.9323, the model remains statistically significant overall, as evidenced by the very low p-value (< 2.2e-16).
 
 
 ```{r}
@@ -168,6 +169,8 @@ first_model <- readRDS("../models/first_model.rds")
 pp_check(first_model, xlab="X", ylab="Density", 
      main="Factors impacting licence duration")
 ```
+
+\newpage
 
 # Discussion {#sec-discussion}
 
@@ -217,16 +220,14 @@ From the results, we can infer that license duration is influenced by both busin
 #| message: false
 #| label: fig-data
 #| fig-cap: "Licenses duration category wise"
-#| layout-ncol: 1
 analysis_data <- read_csv("../data/analysis_data/analysis_data.csv")
-g <- ggplot(analysis_data, aes(x = Category, 
+ggplot(analysis_data, aes(x = Category, 
                               y = Issue_duration, fill=Num_Endorsements)) +
   geom_boxplot() +
   labs(title = "Licence Duration given to each 
        Category, group wise comparison", 
        x = "Category", y = "Average Licence Duration (months)") +
   theme_minimal() + coord_flip()
-print(g)
 ```
 
 
@@ -236,35 +237,124 @@ print(g)
 #| message: false
 #| label: fig-basemodel
 #| fig-cap: "Predicted vs Residual plot Linear model"
-#| layout-ncol: 1
 first_model <- readRDS("../models/first_model.rds")
 residuals <- residuals(first_model)
 predicted <- predict(first_model)
-plot(predicted, residuals, xlab = "Predicted", ylab = "Residuals")
+df <- data.frame(predicted = predicted, residuals = residuals)
+ggplot(df, aes(x = predicted, y = residuals)) +
+  geom_point() +  # Add points
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") + 
+  labs(x = "Predicted", y = "Residuals", title = "") + 
+  theme_minimal()
 ```
 
 ```{r}
 #| echo: false
 #| warning: false
 #| message: false
-#| label: fig-model2
+#| label: fig-model2_1
 #| fig-cap: "Diagnostic plots of linear model"
-#| layout-ncol: 1
-par(mfrow=c(2, 2))
 first_model_lm <- readRDS("../models/first_model_lm.rds")
-plot(first_model_lm, ask = FALSE)
+ggplot(first_model_lm, aes(x = .fitted, y = .resid)) +
+  geom_point() +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  labs(x = "Fitted values", y = "Residuals", title = "Residuals vs. Fitted") +
+  theme(plot.title = element_text(hjust = 0.5))
 ```
 
 ```{r}
 #| echo: false
 #| warning: false
 #| message: false
-#| label: fig-model3
+#| label: fig-model2_2
+#| fig-cap: "Diagnostic plots of linear model"
+ggplot(first_model_lm, aes(sample = .stdresid)) +
+  stat_qq() +
+  stat_qq_line() +
+  labs(title = "Normal Q-Q", x = "Theoretical Quantiles", y = "Standardized residuals") +
+  theme(plot.title = element_text(hjust = 0.5)) 
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| label: fig-model2_3
+#| fig-cap: "Diagnostic plots of linear model"
+ggplot(first_model_lm, aes(x = .fitted, y = sqrt(abs(.stdresid)))) +
+  geom_point() +
+  geom_smooth(se = FALSE) +
+  labs(x = "Fitted values", y = "Square root of the absolute value of residuals", title = "Scale-Location") +
+  theme(plot.title = element_text(hjust = 0.5)) 
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| label: fig-model2_4
+#| fig-cap: "Diagnostic plots of linear model"
+ggplot(first_model_lm, aes(x = .hat, y = .stdresid)) +
+  geom_point() +
+  geom_smooth(se = FALSE) +
+  labs(x = "Leverage", y = "Standardized residuals", title = "Residuals vs. Leverage") +
+  theme(plot.title = element_text(hjust = 0.5)) 
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| label: fig-model3_1
 #| fig-cap: "Diagnostic plots of log linear model"
-#| layout-ncol: 1
-par(mfrow=c(2, 2))
 second_model <- readRDS("../models/second_model.rds")
-plot(second_model, ask = FALSE)
+
+ggplot(second_model, aes(x = .fitted, y = .resid)) +
+  geom_point() +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  labs(x = "Fitted values", y = "Residuals", title = "Residuals vs. Fitted") +
+  theme(axis.text.y = element_text(size = 8), plot.title = element_text(hjust = 0.5))
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| label: fig-model3_2
+#| fig-cap: "Diagnostic plots of log linear model"
+
+ggplot(second_model, aes(sample = .stdresid)) +
+  stat_qq() +
+  stat_qq_line() +
+  labs(title = "Normal Q-Q", x = "Theoretical Quantiles", y = "Standardized residuals") +
+  theme(plot.title = element_text(hjust = 0.5)) 
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| label: fig-model3_3
+#| fig-cap: "Diagnostic plots of log linear model"
+
+ggplot(second_model, aes(x = .fitted, y = sqrt(abs(.stdresid)))) +
+  geom_point() +
+  geom_smooth(se = FALSE) +
+  labs(x = "Fitted values", y = "Square root of \nthe absolute value of residuals", title = "Scale-Location") +
+  theme(axis.text.y = element_text(size = 4), plot.title = element_text(hjust = 0.5)) 
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| label: fig-model3_4
+#| fig-cap: "Diagnostic plots of log linear model"
+ggplot(second_model, aes(x = .hat, y = .stdresid)) +
+  geom_point() +
+  geom_smooth(se = FALSE) +
+  labs(x = "Leverage", y = "Standardized residuals", title = "Residuals vs. Leverage") +
+  theme(plot.title = element_text(hjust = 0.5)) 
 ```
 
 \newpage
