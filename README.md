@@ -10,10 +10,14 @@ The repository is structured as:
 
 o `data` Includes the data sources utilized in the paper: raw data and analysis data.
 
+o `models` Includes the models made from `scripts/04-model.R`.
+
 o `paper` Includes the Quarto document, reference bibliography file and the rendered
 PDF.
 
 o `scripts` Includes the R scripts utilized for data simulation, downloading, cleaning, testing and modelling.
+
+o `sketches` Includes sketches of table and graph.
 
 ## How to Run
 0. For simulation and testing, run `scripts/00-simulate_data.R`
