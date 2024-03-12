@@ -220,14 +220,17 @@ From the results, we can infer that license duration is influenced by both busin
 #| message: false
 #| label: fig-data
 #| fig-cap: "Licenses duration category wise"
+
 analysis_data <- read_csv("../data/analysis_data/analysis_data.csv")
+
 ggplot(analysis_data, aes(x = Category, 
-                              y = Issue_duration, fill=Num_Endorsements)) +
+                              y = Issue_duration)) +
   geom_boxplot() +
-  labs(title = "Licence Duration given to each 
-       Category, group wise comparison", 
+  labs(title = "Licence Duration \ngiven to each Category, \ngroup wise comparison", 
        x = "Category", y = "Average Licence Duration (months)") +
-  theme_minimal() + coord_flip()
+  theme_minimal() + 
+  theme(plot.title = element_text(hjust = 0.5)) +
+  coord_flip()
 ```
 
 
@@ -242,7 +245,7 @@ residuals <- residuals(first_model)
 predicted <- predict(first_model)
 df <- data.frame(predicted = predicted, residuals = residuals)
 ggplot(df, aes(x = predicted, y = residuals)) +
-  geom_point() +  # Add points
+  geom_point(color = "#0072B2") + 
   geom_hline(yintercept = 0, linetype = "dashed", color = "red") + 
   labs(x = "Predicted", y = "Residuals", title = "") + 
   theme_minimal()
@@ -256,10 +259,13 @@ ggplot(df, aes(x = predicted, y = residuals)) +
 #| fig-cap: "Diagnostic plots of linear model"
 first_model_lm <- readRDS("../models/first_model_lm.rds")
 ggplot(first_model_lm, aes(x = .fitted, y = .resid)) +
-  geom_point() +
-  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_point(color = "#0072B2") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "#4D4D4D") +
   labs(x = "Fitted values", y = "Residuals", title = "Residuals vs. Fitted") +
-  theme(plot.title = element_text(hjust = 0.5))
+  theme(plot.title = element_text(hjust = 0.5),
+        panel.background = element_rect(fill = "#f7f7f7"),
+        panel.grid.major = element_line(color = "#e5e5e5"), 
+        panel.grid.minor = element_line(color = "#fafafa"))
 ```
 
 ```{r}
@@ -269,10 +275,13 @@ ggplot(first_model_lm, aes(x = .fitted, y = .resid)) +
 #| label: fig-model2_2
 #| fig-cap: "Diagnostic plots of linear model"
 ggplot(first_model_lm, aes(sample = .stdresid)) +
-  stat_qq() +
-  stat_qq_line() +
+  stat_qq(color = "#1f77b4") +
+  stat_qq_line(color = "#d62728") +
   labs(title = "Normal Q-Q", x = "Theoretical Quantiles", y = "Standardized residuals") +
-  theme(plot.title = element_text(hjust = 0.5)) 
+  theme(plot.title = element_text(hjust = 0.5),
+        panel.background = element_rect(fill = "#f7f7f7"), 
+        panel.grid.major = element_line(color = "#e5e5e5"), 
+        panel.grid.minor = element_line(color = "#fafafa")) 
 ```
 
 ```{r}
@@ -282,10 +291,12 @@ ggplot(first_model_lm, aes(sample = .stdresid)) +
 #| label: fig-model2_3
 #| fig-cap: "Diagnostic plots of linear model"
 ggplot(first_model_lm, aes(x = .fitted, y = sqrt(abs(.stdresid)))) +
-  geom_point() +
-  geom_smooth(se = FALSE) +
+  geom_point(color = "#17becf") +
+  geom_smooth(se = FALSE, color = "#e377c2") +
   labs(x = "Fitted values", y = "Square root of the absolute value of residuals", title = "Scale-Location") +
-  theme(plot.title = element_text(hjust = 0.5)) 
+  theme(plot.title = element_text(hjust = 0.5),
+        panel.background = element_rect(fill = "#f7f7f7"), 
+        panel.grid.major = element_line(color = "#e5e5e5")) 
 ```
 
 ```{r}
@@ -295,10 +306,12 @@ ggplot(first_model_lm, aes(x = .fitted, y = sqrt(abs(.stdresid)))) +
 #| label: fig-model2_4
 #| fig-cap: "Diagnostic plots of linear model"
 ggplot(first_model_lm, aes(x = .hat, y = .stdresid)) +
-  geom_point() +
-  geom_smooth(se = FALSE) +
+  geom_point(color = "#1f77b4") +
+  geom_smooth(se = FALSE, color = "#ff7f0e") +
   labs(x = "Leverage", y = "Standardized residuals", title = "Residuals vs. Leverage") +
-  theme(plot.title = element_text(hjust = 0.5)) 
+  theme(plot.title = element_text(hjust = 0.5),
+        panel.background = element_rect(fill = "#f7f7f7"),
+        panel.grid.major = element_line(color = "#e5e5e5"))  
 ```
 
 ```{r}
@@ -310,10 +323,13 @@ ggplot(first_model_lm, aes(x = .hat, y = .stdresid)) +
 second_model <- readRDS("../models/second_model.rds")
 
 ggplot(second_model, aes(x = .fitted, y = .resid)) +
-  geom_point() +
-  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_point(color = "#0072B2") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "#4D4D4D") +
   labs(x = "Fitted values", y = "Residuals", title = "Residuals vs. Fitted") +
-  theme(axis.text.y = element_text(size = 8), plot.title = element_text(hjust = 0.5))
+  theme(axis.text.y = element_text(size = 8), plot.title = element_text(hjust = 0.5),
+        panel.background = element_rect(fill = "#f7f7f7"),  
+        panel.grid.major = element_line(color = "#e5e5e5"),  
+        panel.grid.minor = element_line(color = "#fafafa")) 
 ```
 
 ```{r}
@@ -324,10 +340,13 @@ ggplot(second_model, aes(x = .fitted, y = .resid)) +
 #| fig-cap: "Diagnostic plots of log linear model"
 
 ggplot(second_model, aes(sample = .stdresid)) +
-  stat_qq() +
-  stat_qq_line() +
+  stat_qq(color = "#1f77b4") +
+  stat_qq_line(color = "#d62728") +
   labs(title = "Normal Q-Q", x = "Theoretical Quantiles", y = "Standardized residuals") +
-  theme(plot.title = element_text(hjust = 0.5)) 
+  theme(plot.title = element_text(hjust = 0.5),
+        panel.background = element_rect(fill = "#f7f7f7"), 
+        panel.grid.major = element_line(color = "#e5e5e5"), 
+        panel.grid.minor = element_line(color = "#fafafa")) 
 ```
 
 ```{r}
@@ -338,10 +357,12 @@ ggplot(second_model, aes(sample = .stdresid)) +
 #| fig-cap: "Diagnostic plots of log linear model"
 
 ggplot(second_model, aes(x = .fitted, y = sqrt(abs(.stdresid)))) +
-  geom_point() +
-  geom_smooth(se = FALSE) +
+  geom_point(color = "#17becf") +
+  geom_smooth(se = FALSE, color = "#e377c2") +
   labs(x = "Fitted values", y = "Square root of \nthe absolute value of residuals", title = "Scale-Location") +
-  theme(axis.text.y = element_text(size = 4), plot.title = element_text(hjust = 0.5)) 
+  theme(axis.text.y = element_text(size = 4), plot.title = element_text(hjust = 0.5),
+        panel.background = element_rect(fill = "#f7f7f7"), 
+        panel.grid.major = element_line(color = "#e5e5e5"))
 ```
 
 ```{r}
@@ -351,10 +372,12 @@ ggplot(second_model, aes(x = .fitted, y = sqrt(abs(.stdresid)))) +
 #| label: fig-model3_4
 #| fig-cap: "Diagnostic plots of log linear model"
 ggplot(second_model, aes(x = .hat, y = .stdresid)) +
-  geom_point() +
-  geom_smooth(se = FALSE) +
+  geom_point(color = "#1f77b4") +
+  geom_smooth(se = FALSE, color = "#ff7f0e") +
   labs(x = "Leverage", y = "Standardized residuals", title = "Residuals vs. Leverage") +
-  theme(plot.title = element_text(hjust = 0.5)) 
+  theme(plot.title = element_text(hjust = 0.5), 
+        panel.background = element_rect(fill = "#f7f7f7"),  
+        panel.grid.major = element_line(color = "#e5e5e5"))
 ```
 
 \newpage
