@@ -8,7 +8,7 @@ toc: true
 fig-pos: H
 toc-depth: 2
 date-format: long
-abstract: "Municipal Licensing & Standards (ML&S) issues licences to various type of businesses and trades in Toronto city. This licence dataset is used for finding the impact of various factors influencing licence durations. The data set is analysed and compared for the period 2000 and beyond. Evidently, the linear model suggests that the category `HOLISTIC CENTRE` has the most significant negative impact on issue duration, while the number of endorsements does not significantly affect issue duration. The model explains only a small proportion of the variability in issue duration, indicating that other factors beyond the predictors included in the model may influence issue duration.  @citeR is used in this report to clean, visualize and model fitting. In future this report can be helpful to analyze and consider other factors impacting licencing."
+abstract: "Municipal Licensing & Standards (ML&S) issues licences to various type of businesses and trades in Toronto city. This licence dataset is used for finding the impact of various factors influencing licence durations. The data set is analysed and compared for the period 2000 and beyond. Evidently, the linear model suggests that the category `HOLISTIC CENTRE` has the most significant negative impact on issue duration, while the number of endorsements does not significantly affect issue duration. The model explains only a small proportion of the variability in issue duration, indicating that other factors beyond the predictors included in the model may influence issue duration."
 format: pdf
 number-sections: true
 bibliography: references.bib
@@ -47,7 +47,7 @@ Our primary estimand is the difference in average license duration across differ
 
 The purpose of this paper is to find which factors or categories 
 impact the licence durability. The remainder of this paper is 
-structured as follows. @sec-data elaborate on the data-set used for 
+structured as follows. @citeR is used in this report to clean, visualize and model fitting. In future this report can be helpful to analyze and consider other factors impacting licencing. @sec-data elaborate on the data-set used for 
 the analysis. @sec-model section explains about the linear model fitted on the 
 data-set. @sec-result shows the result of the analysis. 
 @sec-discussion explains and discusses the results in detail. @sec-conclusion
@@ -63,7 +63,7 @@ The data set used in this analysis is obtained from the City of Toronto’s Open
 and kableExtra for styling tables @citekableExtra. 
 
 ## Methodology
-The raw data set contains 32000 observations each having 18 features. However, for the analysis, I only require a few of the features. The final data-set contains 4 variables i.e. Category, number of endorsements, year and licence duration. I also performed feature engineering to generate a couple of features. These will be discussed further in detail. A sample of the cleaned data set is shown here @tbl-sampledata.
+The raw data set contains 32000 observations each having 18 features. However, for the analysis, I only require a few of the features. The final data-set contains 4 variables i.e. Category, number of endorsements, year and licence duration. I also performed feature engineering to generate a couple of features. These will be discussed further in detail. A sample of the cleaned data set is shown in @tbl-sampledata.
 
 In the data cleaning process, several steps were undertaken to refine and prepare the dataset for analysis. Initially, a set of specific columns deemed unnecessary for the analysis, such as "_id," "Licence No.," and others related to contact details and record updates, were identified and removed. Additionally, to enhance clarity and ease of analysis, columns containing text-based information, such as "Conditions" and "Endorsements," underwent processing. A custom function was applied to calculate the number of words in each entry of the "Endorsements" column. Furthermore, date-related columns such as Issue_date and Cancel_date were modified to extract the year and month of issuance and cancellation, and a new column, "Issue_duration," was created to represent the duration between issuance and cancellation in months. Finally, several columns containing redundant or sensitive information were dropped to streamline the dataset for subsequent analysis. These meticulous data-cleaning steps ensure a more focused, structured, and standardized dataset, laying the foundation for the subsequent stages.
 
@@ -72,7 +72,7 @@ In the data cleaning process, several steps were undertaken to refine and prepar
 The table shows category wise percentage of
 licenses issued during this period. 
 The overall distribution is shown here @tbl-catall. 
-Figure @fig-data shows the box-plot of licence duration category-wise.
+@fig-data shows the box-plot of licence duration category-wise.
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 #| label: tbl-sampledata
@@ -107,9 +107,9 @@ result
 # Model {#sec-model}
 
 By fitting a linear model to the license dataset, we can identify which factors, such as business category and number of endorsements, have the most significant impact on license durations, as by understanding the factors that influence license durations for businesses and trades in Toronto is crucial for efficient municipal operations and supporting local businesses. Linear models offer a straightforward approach to understanding relationships between variables, providing interpretable coefficients that quantify the impact of predictors on the response variable. Additionally, they require fewer assumptions compared to more complex models, making them suitable for a wide range of data-sets and facilitating easier interpretation of results. The linear model that we fitted is defined as below:
-
-$Issue\_duration=\beta_0 + \beta_1*Category + \beta_2*Num_Endorsements + \epsilon$
-
+\begin{center}
+$Issue\_duration=\beta_0 + \beta_1*Category + \beta_2*Num\_Endorsements + \epsilon$
+\end{center}
 where:
 
 - Issue_duration is the response variable.
@@ -118,9 +118,9 @@ where:
 - $\epsilon$ is the error term.
 
 As we also fit the log linear model, when fitting a log-linear model, the equation structure changes to accommodate the logarithmic transformation of the response variable or predictor variables as below:
-
-$log(Issue\_duration)=\beta_0 + \beta_1*Category + \beta_2*log(Num_Endorsements) + \epsilon$
-
+\begin{center}
+$log(Issue\_duration)=\beta_0 + \beta_1*Category + \beta_2*log(Num\_Endorsements) + \epsilon$
+\end{center}
 where:
 
 - $log(Issue\_duration)$ is the natural logarithm of the response variable.
