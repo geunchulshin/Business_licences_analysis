@@ -8,7 +8,7 @@ toc: true
 fig-pos: H
 toc-depth: 2
 date-format: long
-abstract: "Municipal Licensing & Standards (ML&S) issues licences to various type of businesses and trades in Toronto city. This licence dataset is used for finding the impact of various factors influencing licence durations. The data set is analysed and compared for the period 2000 and beyond. Evidently, the linear model suggests that the category `HOLISTIC CENTRE` has the most significant negative impact on issue duration, while the number of endorsements does not significantly affect issue duration. The model explains only a small proportion of the variability in issue duration, indicating that other factors beyond the predictors included in the model may influence issue duration."
+abstract: "Municipal Licensing & Standards (ML&S) issues licences to various type of businesses and trades in Toronto city. This licence dataset is used for finding the impact of various factors influencing licence durations. The data set is analysed and compared for the period 2000 and beyond. Evidently, the linear model suggests that the category `Holistic centre` has the most significant negative impact on issue duration, while the number of endorsements does not significantly affect issue duration. The model explains only a small proportion of the variability in issue duration, indicating that other factors beyond the predictors included in the model may influence issue duration."
 format: pdf
 number-sections: true
 bibliography: references.bib
@@ -24,6 +24,7 @@ library(kableExtra)
 library(ggplot2)
 library(bayesplot)
 library(rstanarm)
+library(modelsummary)
 ```
 
 
@@ -59,7 +60,7 @@ concludes the analysis i.e. the findings of this paper.
 ## Data Description
 
 The data set used in this analysis is obtained from the City of Toronto’s Open-Data Toronto Library @citeOpenData. The data set is entitled with the name "Municipal Licensing and Standards - Business Licences and Permits" @toronto_open_data. Along with that, the following packages are also used, ggplot2 for plotting @citeGGPlot, tidyverse for data frame manipulation @citeTidyverse, knitr for pdf rendering @citeKnitr, @rstanarm package is used to fit the model, 
-@bayesplot is used to plot the diagnostics
+@bayesplot is used to plot the diagnostics, modelsummary for summarzing regression model @citeModelsummary
 and kableExtra for styling tables @citekableExtra. 
 
 ## Methodology
@@ -97,7 +98,7 @@ kable(res)
 cleaned_data <- read_csv("../data/analysis_data/analysis_data.csv")
 df1 <- as.data.frame(prop.table(table(cleaned_data$Category)))
 colnames(df1) <- c("Category", "Percentage(%)")
-df1$`Percentage(%)` <- df1$`Percentage(%)`*100
+df1$`Percentage(%)` <- round(df1$`Percentage(%)`*100, 2)
 result <- kable(df1) |> kable_classic(full_width = FALSE)
 result
 ```
@@ -107,9 +108,11 @@ result
 # Model {#sec-model}
 
 By fitting a linear model to the license dataset, we can identify which factors, such as business category and number of endorsements, have the most significant impact on license durations, as by understanding the factors that influence license durations for businesses and trades in Toronto is crucial for efficient municipal operations and supporting local businesses. Linear models offer a straightforward approach to understanding relationships between variables, providing interpretable coefficients that quantify the impact of predictors on the response variable. Additionally, they require fewer assumptions compared to more complex models, making them suitable for a wide range of data-sets and facilitating easier interpretation of results. The linear model that we fitted is defined as below:
+
 \begin{center}
-$Issue\_duration=\beta_0 + \beta_1*Category + \beta_2*Num\_Endorsements + \epsilon$
+$Issue\_duration = \beta_0 + \beta_1 \times \mbox{Category} + \beta_2 \times \mbox{Num\_Endorsements} + \epsilon$
 \end{center}
+
 where:
 
 - Issue_duration is the response variable.
@@ -118,9 +121,12 @@ where:
 - $\epsilon$ is the error term.
 
 As we also fit the log linear model, when fitting a log-linear model, the equation structure changes to accommodate the logarithmic transformation of the response variable or predictor variables as below:
+
 \begin{center}
-$log(Issue\_duration)=\beta_0 + \beta_1*Category + \beta_2*log(Num\_Endorsements) + \epsilon$
+$\log(\mbox{Issue\_duration}) = \beta_0 + \beta_1 \times \mbox{Category} + \beta_2 \times \log(\mbox{Num\_Endorsements}) + \epsilon$
 \end{center}
+
+
 where:
 
 - $log(Issue\_duration)$ is the natural logarithm of the response variable.
@@ -139,10 +145,10 @@ in regulatory focus or industry dynamics over time.
 
 ## Linear model
 
-The analysis of license duration for businesses and trades in Toronto reveals interesting insights as shown in @fig-result1 and plots of linear model (@fig-model2_1, @fig-model2_2, @fig-model2_3, @fig-model2_4). The linear model suggests that certain business categories, such as 'HOLISTIC CENTRE', have a significant impact on license duration, with shorter durations observed in this category compared to others. However, the number of endorsements does not seem to have a significant effect on license duration, as indicated by its non-significant coefficient and p-value. Despite these findings, the model only explains a small proportion (approximately 1.3%) of the variability in license duration, suggesting that other factors not included in the model may also influence license durations. The relatively high residual standard error of around 40.26 indicates some level of deviation of observed license durations from the predicted values by the model. While the model is statistically significant overall, with a very low p-value (< 2.2e-16), its limited explanatory power underscores the complexity of factors influencing license durations beyond those captured in the analysis.
+The analysis of license duration for businesses and trades in Toronto reveals interesting insights as shown in @fig-result1 and plots of linear model (modelsummary shown in @tbl-firstmodelsummary and graphs shown in @fig-model2_1, @fig-model2_2, @fig-model2_3, @fig-model2_4). The linear model suggests that certain business categories, such as 'HOLISTIC CENTRE', have a significant impact on license duration, with shorter durations observed in this category compared to others. However, the number of endorsements does not seem to have a significant effect on license duration, as indicated by its non-significant coefficient and p-value. Despite these findings, the model only explains a small proportion (approximately 1.3%) of the variability in license duration, suggesting that other factors not included in the model may also influence license durations. The relatively high residual standard error of around 40.26 indicates some level of deviation of observed license durations from the predicted values by the model. While the model is statistically significant overall, with a very low p-value (< 2.2e-16), its limited explanatory power underscores the complexity of factors influencing license durations beyond those captured in the analysis.
 
 ## Log-Linear model
-The log-linear model suggests that while certain business categories still exhibit significant impacts on license duration (as shown in @fig-model3_1, @fig-model3_2, @fig-model3_3, @fig-model3_4), the effects are somewhat attenuated compared to the linear model. Notably, businesses categorized as 'HOLISTIC CENTRE' continue to demonstrate a significant negative impact on license duration. However, the logarithmically transformed number of endorsements does not appear to significantly influence license duration, similar to the findings of the linear model. Overall, the model explains only a small proportion (approximately 1.4%) of the variability in license duration, indicating the presence of other unaccounted factors. Despite the relatively high residual standard error of around 0.9323, the model remains statistically significant overall, as evidenced by the very low p-value (< 2.2e-16).
+The log-linear model suggests that while certain business categories still exhibit significant impacts on license duration (modelsummary shown in @tbl-secondmodelsummary and graphs shown in @fig-model3_1, @fig-model3_2, @fig-model3_3, @fig-model3_4), the effects are somewhat attenuated compared to the linear model. Notably, businesses categorized as 'HOLISTIC CENTRE' continue to demonstrate a significant negative impact on license duration. However, the logarithmically transformed number of endorsements does not appear to significantly influence license duration, similar to the findings of the linear model. Overall, the model explains only a small proportion (approximately 1.4%) of the variability in license duration, indicating the presence of other unaccounted factors. Despite the relatively high residual standard error of around 0.9323, the model remains statistically significant overall, as evidenced by the very low p-value (< 2.2e-16).
 
 
 ```{r}
@@ -240,7 +246,7 @@ ggplot(analysis_data, aes(x = Category,
 #| message: false
 #| label: fig-basemodel
 #| fig-cap: "Predicted vs Residual plot Linear model"
-first_model <- readRDS("../models/first_model.rds")
+
 residuals <- residuals(first_model)
 predicted <- predict(first_model)
 df <- data.frame(predicted = predicted, residuals = residuals)
@@ -250,6 +256,17 @@ ggplot(df, aes(x = predicted, y = residuals)) +
   labs(x = "Predicted", y = "Residuals", title = "") + 
   theme_minimal()
 ```
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| label: tbl-firstmodelsummary
+#| tbl-cap: "Modelsummary of linear model"
+first_model_lm <- readRDS("../models/first_model_lm.rds")
+modelsummary(first_model_lm)
+```
+
 
 ```{r}
 #| echo: false
@@ -312,6 +329,16 @@ ggplot(first_model_lm, aes(x = .hat, y = .stdresid)) +
   theme(plot.title = element_text(hjust = 0.5),
         panel.background = element_rect(fill = "#f7f7f7"),
         panel.grid.major = element_line(color = "#e5e5e5"))  
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| label: tbl-secondmodelsummary
+#| tbl-cap: "Modelsummary of log linear model"
+second_model <- readRDS("../models/second_model.rds")
+modelsummary(second_model)
 ```
 
 ```{r}
